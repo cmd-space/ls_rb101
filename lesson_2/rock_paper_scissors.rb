@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
 VALID_CHOICES = %w[rock r paper p scissors sc lizard l spock sp].freeze
+FIGHT_LEGEND = {
+  rock: %w[scissors lizard],
+  paper: %w[rock spock],
+  scissors: %w[paper lizard],
+  lizard: %w[spock paper],
+  spock: %w[scissors rock]
+}.freeze
 
 def prompt(message)
   puts "=> #{message}"
 end
 
 def win?(first, second)
-  (first == 'rock' && %w[scissors lizard].include?(second)) ||
-    (first == 'paper' && %w[rock spock].include?(second)) ||
-    (first == 'scissors' && %w[paper lizard].include?(second)) ||
-    (first == 'lizard' && %w[spock paper].include?(second)) ||
-    (first == 'spock' && %w[scissors rock].include?(second))
+  FIGHT_LEGEND[first.to_sym].include?(second)
 end
 
 def update_score(message, score)
@@ -53,12 +56,12 @@ end
 
 loop do
   scoreboard = { player: 0, computer: 0 }
+  prompt('Choose from the following')
+  prompt('The option to the right of each choice can be used for ease')
   loop do
     choice = ''
     loop do
-      prompt('Choose from the following')
-      prompt('The option to the right of each choice can be used for ease')
-      prompt("#{VALID_CHOICES.join(', ')}")
+      prompt("#{VALID_CHOICES.join(', ')}?")
       choice = convert_choice!(gets.chomp)
 
       break if VALID_CHOICES.include?(choice)
@@ -74,7 +77,6 @@ loop do
     prompt(display_result)
 
     scoreboard = update_score(display_result, scoreboard)
-    p scoreboard
 
     break if scoreboard[:player] == 5 || scoreboard[:computer] == 5
   end
