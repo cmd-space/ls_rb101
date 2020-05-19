@@ -14,13 +14,24 @@ def win?(first, second)
     (first == 'spock' && %w[scissors rock].include?(second))
 end
 
-def display_result(player, computer)
-  if win?(player, computer)
-    prompt('You won!')
-  elsif win?(computer, player)
-    prompt('The computer won!')
+def update_score(message, score)
+  if message == 'You won!'
+    score[:player] += 1
+  elsif message == 'The computer won!'
+    score[:computer] += 1
   else
-    prompt('It\'s a tie!')
+    score
+  end
+  score
+end
+
+def result(player, computer)
+  if win?(player, computer)
+    'You won!'
+  elsif win?(computer, player)
+    'The computer won!'
+  else
+    'It\'s a tie!'
   end
 end
 
@@ -36,25 +47,41 @@ def convert_choice!(choice)
   choice
 end
 
+def grand_champion?(score)
+  score[:player] > score[:computer] ? 'PLAYER' : 'COMPUTER'
+end
+
 loop do
-  choice = ''
+  scoreboard = { player: 0, computer: 0 }
   loop do
-    prompt('Choose from the following')
-    prompt('The option to the right of each choice can be used for ease')
-    prompt("#{VALID_CHOICES.join(', ')}")
-    choice = convert_choice!(gets.chomp)
+    choice = ''
+    loop do
+      prompt('Choose from the following')
+      prompt('The option to the right of each choice can be used for ease')
+      prompt("#{VALID_CHOICES.join(', ')}")
+      choice = convert_choice!(gets.chomp)
 
-    break if VALID_CHOICES.include?(choice)
+      break if VALID_CHOICES.include?(choice)
 
-    prompt('That is not a valid choice. Please try again.')
+      prompt('That is not a valid choice. Please try again.')
+    end
+
+    computer_choice = convert_choice!(VALID_CHOICES.sample)
+
+    prompt("You chose: #{choice}; Computer chose: #{computer_choice}")
+
+    display_result = result(choice, computer_choice)
+    prompt(display_result)
+
+    scoreboard = update_score(display_result, scoreboard)
+    p scoreboard
+
+    break if scoreboard[:player] == 5 || scoreboard[:computer] == 5
   end
 
-  computer_choice = convert_choice!(VALID_CHOICES.sample)
+  prompt("The #{grand_champion?(scoreboard)} is the grand champion!!!")
 
-  prompt("You chose: #{choice}; Computer chose: #{computer_choice}")
-
-  display_result(choice, computer_choice)
-
+  prompt('I hope you had a wonderful time playing!')
   prompt('Do you want to play again?')
   answer = gets.chomp
 
